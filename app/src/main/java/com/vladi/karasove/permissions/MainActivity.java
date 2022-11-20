@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private MaterialButton requestCamera;
     private final int REQUEST_CODE_PERMISSION_CAMERA = 2;
-  //  private static final int MANUALLY_CAMERA_PERMISSION_REQUEST_CODE = 102;
+
 
     private MaterialButton requestContacts;
     private final int REQUEST_CODE_PERMISSION_CONTACTS = 3;
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }if(!isPhoneFlat){
             Toast.makeText(getApplicationContext(),"All the conditions must be valid",Toast.LENGTH_LONG).show();
             return;
-        }if(!foundContact){
+        }if(!isContactExists()){
             Toast.makeText(getApplicationContext(),"All the conditions must be valid",Toast.LENGTH_LONG).show();
             return;
         }if(!isCameraAvailable()){
@@ -166,7 +166,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Log.d("pttt", "REQUEST_CODE_PERMISSION_CONTACTS");
                 boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED;
                 if (result) {
-                    isContactExists();
                     return;
                 }
                 requestPermissionWithRationaleCheck();
@@ -205,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             })
                             .show();
             alertDialog.setCanceledOnTouchOutside(true);
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_WIFI_STATE)) {
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
             AlertDialog alertDialog =
                     new AlertDialog.Builder(this)
                             .setMessage(message)
@@ -249,11 +248,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startActivityForResult(intent, MANUALLY_CONTACTS_PERMISSION_REQUEST_CODE);
     }
 
-    private void isContactExists() {
-        searchContact("+972 54-208-9220");
+    private boolean isContactExists() {
+        foundContact=searchContact("+972 54-208-9220");
+        return  foundContact;
     }
 
-    private void searchContact(String number) {
+    private boolean searchContact(String number) {
       //  getLoaderManager().initLoader(CONTACTS_LOADER_ID, null, loaderCallbacks);
         Cursor cursor = getContentResolver().query(
                 android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -269,8 +269,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.d("pttt","number:"+  cursor.getString(0));
         }
         if(contactNumbers.contains(number)){
-            foundContact=true;
+            return true;
         }
+        return  false;
     }
 
 
