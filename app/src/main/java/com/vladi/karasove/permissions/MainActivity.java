@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private boolean isContactExists() {
-        foundContact=searchContact("+972 54-208-9220");
+        foundContact=searchContact("The Phone number that should be inside the contacts");
         return  foundContact;
     }
 
