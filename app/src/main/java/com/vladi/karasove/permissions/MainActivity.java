@@ -41,14 +41,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private MaterialButton requestContacts;
     private final int REQUEST_CODE_PERMISSION_CONTACTS = 3;
     private static final int MANUALLY_CONTACTS_PERMISSION_REQUEST_CODE = 103;
-    private boolean foundContact=false;
+    private boolean foundContact = false;
 
     private SensorManager sensorManager;
-    private boolean isPhoneFlat=false;
+    private boolean isPhoneFlat = false;
 
     private AppCompatTextView welcome;
     private MaterialButton enter;
     private TextInputLayout userName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,42 +64,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         requestCamera = findViewById(R.id.mainActivity_BTN_camera);
         enter = findViewById(R.id.mainActivity_BTN_enter);
         welcome = findViewById(R.id.mainActivity_TXT_welcome);
-        userName=findViewById(R.id.main_EDT_userName);
+        userName = findViewById(R.id.main_EDT_userName);
     }
 
     private void initViews() {
         requestContacts.setOnClickListener(view -> requestContacts());
         requestCamera.setOnClickListener(view -> requestCamera());
-        enter.setOnClickListener(view-> checkConditions());
+        enter.setOnClickListener(view -> checkConditions());
         sensorInit();
     }
 
     private void sensorInit() {
-        sensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener((SensorEventListener) this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private void checkConditions() {
-        if(!isPhoneCharging()){
-            Toast.makeText(getApplicationContext(),"All the conditions must be valid",Toast.LENGTH_LONG).show();
-            return; }
-        if(!isWifiEnabled()){
-            Toast.makeText(getApplicationContext(),"All the conditions must be valid",Toast.LENGTH_LONG).show();
-            return;
-        }if(!isPhoneFlat){
-            Toast.makeText(getApplicationContext(),"All the conditions must be valid",Toast.LENGTH_LONG).show();
-            return;
-        }if(!isContactExists()){
-            Toast.makeText(getApplicationContext(),"All the conditions must be valid",Toast.LENGTH_LONG).show();
-            return;
-        }if(!isCameraAvailable()){
-            Toast.makeText(getApplicationContext(),"All the conditions must be valid",Toast.LENGTH_LONG).show();
+        if (!isPhoneCharging()) {
+            Toast.makeText(getApplicationContext(), "All the conditions must be valid", Toast.LENGTH_LONG).show();
             return;
         }
-      //  openActivity();
-        welcome.setText("Welcome "+userName.getEditText().getText().toString());
+        if (!isWifiEnabled()) {
+            Toast.makeText(getApplicationContext(), "All the conditions must be valid", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!isPhoneFlat) {
+            Toast.makeText(getApplicationContext(), "All the conditions must be valid", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!isContactExists()) {
+            Toast.makeText(getApplicationContext(), "All the conditions must be valid", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!isCameraAvailable()) {
+            Toast.makeText(getApplicationContext(), "All the conditions must be valid", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(userName.getEditText().getText().toString().isEmpty()){
+            Toast.makeText(getApplicationContext(), "Enter your name", Toast.LENGTH_LONG).show();
+            return;
+        }
+        //  openActivity();
+        welcome.setText("Welcome " + userName.getEditText().getText().toString());
         welcome.setVisibility(View.VISIBLE);
     }
 
@@ -107,33 +116,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
         startActivity(intent);
     }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float ax,ay,az;
-        if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
-            ax=event.values[0];
-            ay=event.values[1];
-            az=event.values[2];
-            float norm_Of_g =(float) Math.sqrt(ax * ax + ay * ay + az * az);
-            az=(az/norm_Of_g);
+        float ax, ay, az;
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            ax = event.values[0];
+            ay = event.values[1];
+            az = event.values[2];
+            float norm_Of_g = (float) Math.sqrt(ax * ax + ay * ay + az * az);
+            az = (az / norm_Of_g);
             int inclination = (int) Math.round(Math.toDegrees(Math.acos(az)));
-            if (inclination < 10 || inclination > 175)
-            {
+            if (inclination < 10 || inclination > 175) {
                 // device is flat
-                isPhoneFlat=true;
+                isPhoneFlat = true;
             }
         }
     }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
 
-    private  boolean isWifiEnabled(){
+    private boolean isWifiEnabled() {
         WifiManager wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         return wifi.isWifiEnabled();
     }
-    private boolean isPhoneCharging(){
+
+    private boolean isPhoneCharging() {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = this.registerReceiver(null, ifilter);
 
@@ -149,13 +160,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private boolean isCameraAvailable() {
-      return  ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestCamera() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_PERMISSION_CAMERA);
     }
-
 
 
     @Override
@@ -186,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     private void requestPermissionWithRationaleCheck() {
-        String message = "an approved needed for entering to the application";
+        String message = "An approved needed for entering to the application";
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
             AlertDialog alertDialog =
                     new AlertDialog.Builder(this)
@@ -249,29 +259,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private boolean isContactExists() {
-        foundContact=searchContact("+972 54-208-9220");
-        return  foundContact;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED)
+            foundContact = searchContact("+972 54-208-9220");
+        return foundContact;
     }
 
     private boolean searchContact(String number) {
-      //  getLoaderManager().initLoader(CONTACTS_LOADER_ID, null, loaderCallbacks);
         Cursor cursor = getContentResolver().query(
                 android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[] {  ContactsContract.CommonDataKinds.Phone.NUMBER,
+                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER,
                         ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME },
+                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME},
                 ContactsContract.CommonDataKinds.Phone.CONTACT_ID, null,
                 null);
         ArrayList<String> contactNumbers = new ArrayList<String>();
         cursor.moveToFirst();
         while (cursor.moveToNext()) {
             contactNumbers.add(cursor.getString(0));
-            Log.d("pttt","number:"+  cursor.getString(0));
+            Log.d("pttt", "number:" + cursor.getString(0));
         }
-        if(contactNumbers.contains(number)){
+        if (contactNumbers.contains(number)) {
             return true;
         }
-        return  false;
+        return false;
     }
 
 
